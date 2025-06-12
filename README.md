@@ -1,18 +1,16 @@
 # 🚀 AI 객체 상세 분석 시스템
 
 ## 🎯 프로젝트 개요
-**YOLO11 + AI API**를 활용한 **전문가급 실시간 객체 감지 및 상세 분석 시스템**
-
-기존의 기본적인 "cell phone" 감지를 **"Apple iPhone 14 Pro"** 같은 구체적이고 유용한 정보로 업그레이드!
+**YOLO11 + AI API**를 활용한 **실시간 객체 감지 및 상세 분석 시스템**
 
 ## ✨ 주요 특징
 
-### 🎨 **폰트 시스템 혁신**
-- **이전**: OpenCV 기본 폰트 (아마추어 품질)
-- **현재**: Calibri TrueType 고품질 폰트 시스템
+### 🎨 **폰트 시스템**
+- **이전**: OpenCV 기본 폰트
+- **현재**: Calibri TrueType 폰트 시스템
 - PIL + OpenCV 하이브리드 렌더링
 - 그림자 효과 및 안티앨리어싱
-- 한글 완벽 지원
+- 한글 지원
 
 ### 🤖 **AI 상세 분석**
 - **다중 AI API 지원**: OpenAI GPT-4 Vision, Anthropic Claude, Google Gemini
@@ -20,13 +18,13 @@
 - **색상 및 상태 분석**: "Space Gray", "Excellent condition"
 - **캐시 시스템**: 중복 분석 방지로 성능 최적화
 
-### 🎨 **전문가급 UI/UX**
+### 🎨 **UI/UX**
 - **컴팩트 디자인**: 25% 더 작고 효율적인 정보 카드
 - **브랜드 색상 팔레트**: 10가지 전문 색상 시스템
 - **그라데이션 효과**: 미묘하고 세련된 시각 효과
 - **🤖 AI 아이콘**: 상세 분석 정보 표시
 
-### ⚡ **YOLO11 완전 최적화**
+### ⚡ **YOLO11 최적화**
 - **모든 모델 크기 지원**: Nano, Small, Medium, Large, Extra Large
 - **적응형 임계값**: 객체별 맞춤 신뢰도 설정
 - **실시간 모델 변경**: 'm' 키로 즉시 변경
@@ -106,7 +104,7 @@ python ai_setup_tool.py test   # API 키 테스트
 
 ### **키보드 단축키**
 - `q`: 프로그램 종료
-- `s`: 고해상도 스크린샷 저장
+- `s`: 스크린샷 저장
 - `m`: YOLO 모델 변경 (n→s→m→l→x 순환)
 - `r`: 통계 리셋
 - `i`: 정보 패널 토글
@@ -150,12 +148,12 @@ python ai_setup_tool.py test   # API 키 테스트
 
 ```
 📦 CAR_TRACE/
-├── 🚀 run_system.py                     # 사용자 친화적 실행기
-├── 🎨 ui_design_improved.py             # 고품질 폰트 + UI 시스템
+├── 🚀 run_system.py                     # 프로그램 실행기
+├── 🎨 ui_design_improved.py             # 폰트 + UI 시스템
 ├── 🤖 ai_object_analyzer.py             # AI 상세 분석 엔진
 ├── 📱 yolo11_tracker.py                 # YOLO11 메인 트래커
 ├── 🔧 ai_setup_tool.py                  # API 설정 도구
-├── 🎬 demo_complete_system.py           # 완전 시스템 데모
+├── 🎬 demo_complete_system.py           # 시스템 데모
 ├── 📄 sample.env                        # API 키 설정 템플릿
 ├── 📊 requirements.txt                  # 필수 패키지 목록
 └── 📦 yolo11*.pt                       # YOLO11 모델 파일들
@@ -209,16 +207,16 @@ python ai_setup_tool.py test   # API 키 테스트
 
 ### **자주 묻는 질문**
 
-**Q: 폰트가 제대로 표시되지 않아요**
+**Q: 폰트가 제대로 표시되지 않을때**
 A: `ui_design_improved.py`에서 폰트 경로를 확인하거나 시스템 폰트를 사용하도록 설정하세요.
 
-**Q: AI 분석이 작동하지 않아요**
+**Q: AI 분석이 작동하지 않을때**
 A: API 키가 설정되었는지 확인하세요. `python ai_setup_tool.py test`로 테스트 가능합니다.
 
-**Q: 웹캠이 인식되지 않아요**
+**Q: 웹캠이 인식되지 않을때**
 A: 다른 프로그램에서 웹캠을 사용 중인지 확인하고, 카메라 번호를 1, 2로 변경해보세요.
 
-**Q: 성능이 느려요**
+**Q: 성능이 느릴때**
 A: 더 작은 모델(nano)을 사용하거나 해상도를 낮춰보세요.
 
 ### **오류 코드**
@@ -231,13 +229,12 @@ A: 더 작은 모델(nano)을 사용하거나 해상도를 낮춰보세요.
 ### **사용된 기술**
 - **YOLO11**: Ultralytics (객체 감지)
 - **OpenCV**: 영상 처리
-- **PIL**: 고품질 폰트 렌더링
+- **PIL**: 폰트 렌더링
 - **AI APIs**: OpenAI, Anthropic, Google
 
 ### **개발자**
 - **폰트 시스템**: Calibri TrueType 통합
 - **AI 분석**: 다중 API 통합 시스템
-- **UI/UX**: 전문가급 디자인 구현
 
 ---
 
@@ -255,15 +252,13 @@ pip install ultralytics opencv-python pillow requests
 python run_system.py
 ```
 
-**🎯 30초 만에 전문가급 AI 객체 분석 시스템을 체험하세요!**
-
 ---
 *📅 마지막 업데이트: 2025년 6월 12일*  
 *🚀 버전: 2.0 (AI 상세 분석 통합)*
 - **직관적 아이콘**: 안정성, 신뢰도, 추적 상태를 시각적으로 표현
 - **진행 바**: 객체 안정성을 실시간으로 표시
 - **펄스 애니메이션**: 활성 객체의 중심점 애니메이션 효과
-- **카드 기반 패널**: 성능 지표를 카드 형태로 깔끔하게 정리
+- **카드 기반 패널**: 성능 지표를 카드 형태로 정리
 
 ### UI 테스트
 ```bash
@@ -276,9 +271,6 @@ python verify_ui_improvements.py
 
 ---
 
-**개발자**: CAR_TRACE 팀  
-**최신 업데이트**: 2025년 6월 - UI 디자인 대폭 개선  
+**개발자**: I4WAY DevTeam  
+**최신 업데이트**: 2025년 6월 - UI 디자인 개선  
 **문의**: 프로젝트 이슈 페이지에서 버그 리포트 및 기능 요청 가능
-
-## 개발자 정보
-이 프로그램은 개발사양.md의 요구사항을 모두 충족하도록 설계되었습니다.

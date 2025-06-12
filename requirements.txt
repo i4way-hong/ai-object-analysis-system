@@ -1,0 +1,10 @@
+opencv-python==4.8.1.78
+ultralytics==8.3.153
+yt-dlp==2023.7.6
+numpy==1.24.3
+torch==2.0.1
+torchvision==0.15.2
+Pillow==10.0.0
+matplotlib==3.7.2
+psutil>=5.9.0
+scipy>=1.10.0

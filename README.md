@@ -57,12 +57,36 @@ python demo_complete_system.py
 
 ## 🔧 설치 및 설정
 
-### **필수 패키지 설치**
+### **1. 저장소 클론**
+```bash
+git clone https://github.com/your-username/ai-object-analysis-system.git
+cd ai-object-analysis-system
+```
+
+### **2. 필수 패키지 설치**
 ```bash
 pip install ultralytics opencv-python pillow requests
 ```
 
-### **AI API 설정 (선택사항)**
+### **3. YOLO11 모델 다운로드**
+모델 파일들은 크기가 커서 GitHub에 포함되지 않습니다. 처음 실행 시 자동으로 다운로드됩니다:
+
+```bash
+# 첫 실행 시 자동 다운로드됨
+python run_system.py
+
+# 또는 수동으로 다운로드
+python -c "from ultralytics import YOLO; YOLO('yolo11n.pt')"
+```
+
+**지원 모델:**
+- `yolo11n.pt` - Nano (2.6M, 가장 빠름)
+- `yolo11s.pt` - Small (9.4M, 빠름)  
+- `yolo11m.pt` - Medium (20.1M, 균형) ⭐ 권장
+- `yolo11l.pt` - Large (25.3M, 고품질)
+- `yolo11x.pt` - Extra Large (56.9M, 최고 정확도)
+
+### **4. AI API 설정 (선택사항)**
 더 상세한 객체 분석을 위해 AI API 키를 설정하세요:
 
 ```bash

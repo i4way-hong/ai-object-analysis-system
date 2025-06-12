@@ -9,6 +9,8 @@ import os
 import sys
 import cv2
 import numpy as np
+import subprocess
+import json
 from ai_object_analyzer import AIObjectAnalyzer
 
 def create_sample_env_file():
@@ -42,6 +44,244 @@ GOOGLE_API_KEY=yAIzaSyCXM_2sUIp215NVKAZi4dIJ15O9LkjoGpU
     
     print("✅ 샘플 환경변수 파일 생성: sample.env")
     return True
+
+def setup_github_copilot():
+    """GitHub Copilot 설정 도우미"""
+    print("🚀" + "="*50)
+    print("🤖 GitHub Copilot 설정 도우미")
+    print("="*50)
+    
+    # VS Code 설치 확인
+    vscode_installed = check_vscode_installation()
+    github_cli_installed = check_github_cli_installation()
+    
+    if not vscode_installed and not github_cli_installed:
+        print("❌ VS Code와 GitHub CLI 모두 설치되지 않았습니다.")
+        print("\n📝 설치 옵션을 선택하세요:")
+        print("1. VS Code + GitHub Copilot 확장 (추천)")
+        print("2. GitHub CLI")
+        print("3. 수동 설치 가이드 보기")
+        
+        choice = input("\n선택 (1-3): ").strip()
+        
+        if choice == "1":
+            install_vscode_and_copilot()
+        elif choice == "2":
+            install_github_cli()
+        elif choice == "3":
+            show_manual_installation_guide()
+        else:
+            print("❌ 잘못된 선택입니다.")
+            return False
+    
+    elif vscode_installed and not github_cli_installed:
+        print("✅ VS Code가 설치되어 있습니다.")
+        install_copilot_extension()
+    
+    elif not vscode_installed and github_cli_installed:
+        print("✅ GitHub CLI가 설치되어 있습니다.")
+        setup_github_cli_copilot()
+    
+    else:
+        print("✅ VS Code와 GitHub CLI 모두 설치되어 있습니다.")
+        print("GitHub Copilot 확장 상태를 확인합니다...")
+        check_copilot_status()
+    
+    return True
+
+def check_vscode_installation() -> bool:
+    """VS Code 설치 여부 확인"""
+    try:
+        result = subprocess.run(['code', '--version'], 
+                              capture_output=True, text=True, timeout=5)
+        if result.returncode == 0:
+            version = result.stdout.split('\n')[0]
+            print(f"✅ VS Code 설치됨: {version}")
+            return True
+    except (subprocess.TimeoutExpired, FileNotFoundError):
+        pass
+    
+    print("❌ VS Code가 설치되지 않았습니다.")
+    return False
+
+def check_github_cli_installation() -> bool:
+    """GitHub CLI 설치 여부 확인"""
+    try:
+        result = subprocess.run(['gh', '--version'], 
+                              capture_output=True, text=True, timeout=5)
+        if result.returncode == 0:
+            version_info = result.stdout.split('\n')[0]
+            print(f"✅ GitHub CLI 설치됨: {version_info}")
+            return True
+    except (subprocess.TimeoutExpired, FileNotFoundError):
+        pass
+    
+    print("❌ GitHub CLI가 설치되지 않았습니다.")
+    return False
+
+def install_vscode_and_copilot():
+    """VS Code 및 GitHub Copilot 확장 설치"""
+    print("\n🔧 VS Code 및 GitHub Copilot 설치 중...")
+    
+    # VS Code 다운로드 링크 제공
+    print("1️⃣ VS Code 설치:")
+    print("   • https://code.visualstudio.com/download")
+    print("   • Windows x64 User Installer 다운로드")
+    
+    input("\nVS Code 설치 완료 후 Enter를 누르세요...")
+    
+    # VS Code 설치 확인
+    if check_vscode_installation():
+        install_copilot_extension()
+    else:
+        print("❌ VS Code 설치가 완료되지 않았습니다.")
+
+def install_copilot_extension():
+    """GitHub Copilot 확장 설치"""
+    print("\n2️⃣ GitHub Copilot 확장 설치 중...")
+    
+    try:
+        # GitHub Copilot 확장 설치
+        result = subprocess.run([
+            'code', '--install-extension', 'github.copilot'
+        ], capture_output=True, text=True, timeout=30)
+        
+        if result.returncode == 0:
+            print("✅ GitHub Copilot 확장 설치 완료!")
+            
+            # Copilot Chat 확장도 설치
+            result2 = subprocess.run([
+                'code', '--install-extension', 'github.copilot-chat'
+            ], capture_output=True, text=True, timeout=30)
+            
+            if result2.returncode == 0:
+                print("✅ GitHub Copilot Chat 확장 설치 완료!")
+            
+            print("\n🎯 다음 단계:")
+            print("1. VS Code를 다시 시작하세요")
+            print("2. GitHub 계정으로 로그인하세요")
+            print("3. Copilot 구독을 활성화하세요")
+            
+        else:
+            print(f"❌ 확장 설치 실패: {result.stderr}")
+            print("\n수동 설치 방법:")
+            print("1. VS Code 실행")
+            print("2. Ctrl+Shift+X (확장 패널)")
+            print("3. 'GitHub Copilot' 검색 및 설치")
+            
+    except Exception as e:
+        print(f"❌ 확장 설치 중 오류: {e}")
+
+def install_github_cli():
+    """GitHub CLI 설치 가이드"""
+    print("\n🔧 GitHub CLI 설치:")
+    print("1️⃣ Winget 사용 (Windows 10/11):")
+    print("   winget install --id GitHub.cli")
+    print("\n2️⃣ 수동 다운로드:")
+    print("   • https://cli.github.com/")
+    print("   • Windows msi 파일 다운로드")
+    
+    input("\nGitHub CLI 설치 완료 후 Enter를 누르세요...")
+    
+    if check_github_cli_installation():
+        setup_github_cli_copilot()
+
+def setup_github_cli_copilot():
+    """GitHub CLI Copilot 설정"""
+    print("\n3️⃣ GitHub CLI 로그인 및 Copilot 설정:")
+    
+    try:
+        # GitHub 로그인 상태 확인
+        result = subprocess.run(['gh', 'auth', 'status'], 
+                              capture_output=True, text=True, timeout=10)
+        
+        if "Logged in to github.com" not in result.stderr:
+            print("GitHub에 로그인하세요:")
+            subprocess.run(['gh', 'auth', 'login'], timeout=60)
+        else:
+            print("✅ GitHub에 이미 로그인되어 있습니다.")
+        
+        # Copilot 확장 설치
+        print("GitHub CLI Copilot 확장 설치 중...")
+        result = subprocess.run(['gh', 'extension', 'install', 'github/gh-copilot'], 
+                              capture_output=True, text=True, timeout=30)
+        
+        if result.returncode == 0:
+            print("✅ GitHub CLI Copilot 확장 설치 완료!")
+        else:
+            print("⚠️ Copilot 확장이 이미 설치되어 있거나 설치에 실패했습니다.")
+        
+    except Exception as e:
+        print(f"❌ GitHub CLI 설정 중 오류: {e}")
+
+def check_copilot_status():
+    """현재 GitHub Copilot 상태 확인"""
+    print("\n🔍 GitHub Copilot 상태 확인:")
+    
+    # VS Code 확장 확인
+    try:
+        result = subprocess.run(['code', '--list-extensions'], 
+                              capture_output=True, text=True, timeout=10)
+        
+        extensions = result.stdout.lower()
+        copilot_installed = 'github.copilot' in extensions
+        copilot_chat_installed = 'github.copilot-chat' in extensions
+        
+        print(f"VS Code GitHub Copilot: {'✅ 설치됨' if copilot_installed else '❌ 없음'}")
+        print(f"VS Code Copilot Chat: {'✅ 설치됨' if copilot_chat_installed else '❌ 없음'}")
+        
+    except Exception as e:
+        print(f"VS Code 확장 확인 실패: {e}")
+    
+    # GitHub CLI Copilot 확인
+    try:
+        result = subprocess.run(['gh', 'extension', 'list'], 
+                              capture_output=True, text=True, timeout=10)
+        
+        gh_copilot_installed = 'gh-copilot' in result.stdout
+        print(f"GitHub CLI Copilot: {'✅ 설치됨' if gh_copilot_installed else '❌ 없음'}")
+        
+    except Exception as e:
+        print(f"GitHub CLI 확인 실패: {e}")
+    
+    # AI 분석기에서 Copilot 사용 가능 여부 확인
+    try:
+        from github_copilot_integration import GitHubCopilotIntegration
+        copilot = GitHubCopilotIntegration()
+        is_available = copilot.is_available()
+        print(f"AI 분석기 연동: {'✅ 사용 가능' if is_available else '❌ 사용 불가'}")
+        
+        if is_available:
+            print("\n🎉 GitHub Copilot이 AI 분석에 사용 가능합니다!")
+        else:
+            print("\n⚠️ GitHub Copilot 설정을 완료해주세요.")
+            
+    except Exception as e:
+        print(f"AI 분석기 연동 확인 실패: {e}")
+
+def show_manual_installation_guide():
+    """수동 설치 가이드"""
+    print("\n📖 GitHub Copilot 수동 설치 가이드:")
+    print("="*50)
+    
+    print("\n🎯 방법 1: VS Code + GitHub Copilot (추천)")
+    print("1. VS Code 설치: https://code.visualstudio.com/")
+    print("2. VS Code 실행 → Ctrl+Shift+X")
+    print("3. 'GitHub Copilot' 검색 및 설치")
+    print("4. 'GitHub Copilot Chat' 검색 및 설치")
+    print("5. GitHub 계정으로 로그인")
+    print("6. Copilot 구독 활성화")
+    
+    print("\n🎯 방법 2: GitHub CLI")
+    print("1. GitHub CLI 설치: https://cli.github.com/")
+    print("2. PowerShell에서 실행:")
+    print("   gh auth login")
+    print("   gh extension install github/gh-copilot")
+    
+    print("\n💡 참고:")
+    print("• GitHub Copilot은 유료 서비스입니다 ($10/월)")
+    print("• 학생은 GitHub Student Pack으로 무료 사용 가능")
+    print("• 개인 프로젝트에 60일 무료 체험 제공")
 
 def test_api_keys():
     """API 키 테스트"""
@@ -181,10 +421,13 @@ def show_usage_guide():
     print("🤖 AI 객체 상세 분석 시스템 사용법")
     print("="*60)
     print()
-    print("1️⃣ API 키 준비:")
-    print("   • OpenAI (추천): https://platform.openai.com/api-keys")
-    print("   • Anthropic: https://console.anthropic.com/")
-    print("   • Google: https://ai.google.dev/")
+    print("1️⃣ AI 제공자 설정:")
+    print("   🚀 GitHub Copilot (추천):")
+    print("      python ai_setup_tool.py copilot")
+    print("   🧠 클라우드 AI API:")
+    print("      • OpenAI: https://platform.openai.com/api-keys")
+    print("      • Anthropic: https://console.anthropic.com/")
+    print("      • Google: https://ai.google.dev/")
     print()
     print("2️⃣ 환경변수 설정 (PowerShell):")
     print('   $env:OPENAI_API_KEY="sk-your-actual-key"')
@@ -196,7 +439,13 @@ def show_usage_guide():
     print("   python yolo11_tracker.py 0")
     print("   → 웹캠으로 AI 상세 분석 테스트")
     print()
-    print("💡 기능:")
+    print("💡 AI 분석 우선순위:")
+    print("   1. 🚀 GitHub Copilot (빠름, API 키 불필요)")
+    print("   2. 🧠 OpenAI GPT-4 (고정밀)")
+    print("   3. 🎯 Anthropic Claude (상세)")
+    print("   4. 🌟 Google Gemini (빠름)")
+    print()
+    print("🎯 분석 예시:")
     print("   • 스마트폰 → iPhone 14 Pro, Galaxy S23 등")
     print("   • 자동차 → BMW X5, Tesla Model 3 등")
     print("   • 노트북 → MacBook Pro, ThinkPad 등")
@@ -207,9 +456,10 @@ def main():
         print("🔧 AI 객체 분석기 설정 도구")
         print()
         print("사용법:")
-        print("  python ai_setup_tool.py env     # 샘플 환경변수 파일 생성")
-        print("  python ai_setup_tool.py test    # API 키 테스트")
-        print("  python ai_setup_tool.py guide   # 사용법 가이드")
+        print("  python ai_setup_tool.py env       # 샘플 환경변수 파일 생성")
+        print("  python ai_setup_tool.py test      # API 키 테스트")
+        print("  python ai_setup_tool.py copilot   # GitHub Copilot 설정")
+        print("  python ai_setup_tool.py guide     # 사용법 가이드")
         return
     
     command = sys.argv[1].lower()
@@ -218,10 +468,13 @@ def main():
         create_sample_env_file()
     elif command == 'test':
         test_ai_analysis()
+    elif command == 'copilot':
+        setup_github_copilot()
     elif command == 'guide':
         show_usage_guide()
     else:
         print(f"❌ 알 수 없는 명령어: {command}")
+        print("\n사용 가능한 명령어: env, test, copilot, guide")
 
 if __name__ == "__main__":
     main()

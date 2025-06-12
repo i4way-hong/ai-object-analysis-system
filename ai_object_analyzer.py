@@ -39,8 +39,27 @@ class AIObjectAnalyzer:
                 'api_key': os.getenv('GOOGLE_API_KEY'),
                 'endpoint': 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
                 'model': 'gemini-2.0-flash'
+            },
+            'github_copilot': {
+                'enabled': False,
+                'api_key': None,  # GitHub Copilot은 별도 API 키 불필요
+                'endpoint': 'local_vscode_integration',
+                'model': 'github-copilot'
             }
         }
+        
+        # GitHub Copilot 통합 초기화
+        try:
+            from github_copilot_integration import GitHubCopilotIntegration
+            self.copilot_integration = GitHubCopilotIntegration()
+            if self.copilot_integration.is_available():
+                self.api_providers['github_copilot']['enabled'] = True
+                print("✅ GitHub Copilot 통합 활성화")
+            else:
+                print("⚠️ GitHub Copilot 사용 불가 (VS Code 또는 GitHub CLI 필요)")
+        except ImportError:
+            self.copilot_integration = None
+            print("⚠️ GitHub Copilot 통합 모듈을 찾을 수 없습니다")
         
         # API 설정 확인
         self.check_api_availability()
@@ -350,6 +369,53 @@ class AIObjectAnalyzer:
             print(f"❌ Google 분석 실패: {e}")
             return None
     
+    def analyze_with_github_copilot(self, image_base64: str, object_class: str) -> Optional[Dict]:
+        """GitHub Copilot로 분석"""
+        if not self.api_providers['github_copilot']['enabled'] or not self.copilot_integration:
+            return None
+            
+        try:
+            # GitHub Copilot 통합을 통한 분석
+            object_info = {
+                "class_name": object_class,
+                "confidence": 0.8
+            }
+            
+            # 이미지 데이터 변환 (base64 -> bytes)
+            image_data = base64.b64decode(image_base64) if image_base64 else b""
+            
+            # Copilot 분석 실행
+            result = self.copilot_integration.analyze_object(image_data, object_info)
+            
+            if result:
+                # 표준 형식으로 변환
+                analysis = {
+                    "brand": result.get("brand", "Unknown"),
+                    "model": result.get("model", "Unknown"),
+                    "type": result.get("type", object_class),
+                    "color": result.get("color", "Unknown"),
+                    "distinctive_features": [
+                        f"GitHub Copilot suggested {result.get('brand', 'Unknown')} brand",
+                        f"Model: {result.get('model', 'Unknown')}",
+                        f"Condition: {result.get('condition', 'Good')}"
+                    ],
+                    "estimated_value": "AI estimated",
+                    "condition": result.get("condition", "Good"),
+                    "confidence": result.get("confidence", 0.75),
+                    "provider": "GitHub Copilot",
+                    "source": result.get("source", "github_copilot")
+                }
+                
+                print(f"✅ GitHub Copilot 분석 완료: {analysis['brand']} {analysis['model']}")
+                return analysis
+            else:
+                print("⚠️ GitHub Copilot 분석 결과 없음")
+                return None
+                
+        except Exception as e:
+            print(f"❌ GitHub Copilot 분석 실패: {e}")
+            return None
+    
     def get_object_crop(self, frame: np.ndarray, box: List[float], 
                        padding: float = 0.1) -> np.ndarray:
         """객체 영역 크롭 (패딩 포함)"""
@@ -401,12 +467,15 @@ class AIObjectAnalyzer:
         image_base64 = self.encode_image_to_base64(crop)
         if not image_base64:
             return None
-        
-        # 사용 가능한 API로 분석 시도 (우선순위 순)
+          # 사용 가능한 API로 분석 시도 (우선순위 순)
         analysis_result = None
         
-        # OpenAI 우선
-        if self.api_providers['openai']['enabled']:
+        # GitHub Copilot 최우선 (로컬 처리, 빠름)
+        if self.api_providers['github_copilot']['enabled']:
+            analysis_result = self.analyze_with_github_copilot(image_base64, object_class)
+        
+        # GitHub Copilot 실패 시 OpenAI
+        if not analysis_result and self.api_providers['openai']['enabled']:
             analysis_result = self.analyze_with_openai(image_base64, object_class)
         
         # OpenAI 실패 시 Anthropic

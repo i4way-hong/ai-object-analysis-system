@@ -21,9 +21,14 @@
 - 한글 지원
 
 ### 🤖 **AI 상세 분석**
-- **다중 AI API 지원**: OpenAI GPT-4 Vision, Anthropic Claude, Google Gemini
+- **4개 AI 제공자 지원**: 
+  - 🚀 **GitHub Copilot** (VS Code 통합, 최우선)
+  - 🧠 **OpenAI GPT-4 Vision** (고정밀 분석)  
+  - 🎯 **Anthropic Claude** (상세 분석)
+  - 🌟 **Google Gemini** (빠른 처리)
 - **브랜드/모델 식별**: "iPhone 14 Pro", "Tesla Model 3" 등
 - **색상 및 상태 분석**: "Space Gray", "Excellent condition"
+- **스마트 우선순위**: GitHub Copilot → OpenAI → Anthropic → Google
 - **캐시 시스템**: 중복 분석 방지로 성능 최적화
 
 ### 🎨 **UI/UX**
@@ -93,19 +98,31 @@ python -c "from ultralytics import YOLO; YOLO('yolo11n.pt')"
 - `yolo11x.pt` - Extra Large (56.9M, 최고 정확도)
 
 ### **4. AI API 설정 (선택사항)**
-더 상세한 객체 분석을 위해 AI API 키를 설정하세요:
+더 상세한 객체 분석을 위해 AI API를 설정하세요:
 
+#### **🚀 GitHub Copilot (추천)**
+VS Code에서 GitHub Copilot 확장이 설치되어 있으면 자동으로 사용됩니다:
+- **장점**: 별도 API 키 불필요, 빠른 응답
+- **설치**: VS Code → 확장 → "GitHub Copilot" 검색 및 설치
+- **또는**: GitHub CLI 설치 및 로그인
+
+#### **🧠 클라우드 AI API**
 ```bash
 # PowerShell에서 환경변수 설정
 $env:OPENAI_API_KEY="sk-your-openai-key"
-$env:GOOGLE_API_KEY="your-google-key"
+$env:GOOGLE_API_KEY="your-google-key"  
 $env:ANTHROPIC_API_KEY="sk-ant-your-anthropic-key"
 ```
+
+**API 키 획득:**
+- **OpenAI**: https://platform.openai.com/api-keys
+- **Google**: https://ai.google.dev/
+- **Anthropic**: https://console.anthropic.com/
 
 또는 API 설정 도구 사용:
 ```bash
 python ai_setup_tool.py env    # 템플릿 생성
-python ai_setup_tool.py test   # API 키 테스트
+python ai_setup_tool.py test   # API 키 테스트 (GitHub Copilot 포함)
 ```
 
 ## 🎮 실시간 조작법

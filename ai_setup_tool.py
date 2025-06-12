@@ -54,9 +54,24 @@ def test_api_keys():
         'Google': os.getenv('GOOGLE_API_KEY')
     }
     
+    # GitHub Copilot 확인
+    try:
+        from github_copilot_integration import GitHubCopilotIntegration
+        copilot = GitHubCopilotIntegration()
+        copilot_available = copilot.is_available()
+        apis['GitHub Copilot'] = 'available' if copilot_available else None
+    except ImportError:
+        apis['GitHub Copilot'] = None
+    
     available = []
     for name, key in apis.items():
-        if key and key != 'your-key-here' and len(key) > 10:
+        if name == 'GitHub Copilot':
+            if key == 'available':
+                available.append(name)
+                print(f"✅ {name}: VS Code/GitHub CLI 연동 가능")
+            else:
+                print(f"❌ {name}: VS Code 또는 GitHub CLI 필요")
+        elif key and key != 'your-key-here' and len(key) > 10:
             available.append(name)
             print(f"✅ {name}: API 키 설정됨 ({key[:8]}...)")
         else:
@@ -66,13 +81,16 @@ def test_api_keys():
         print(f"\n🎉 사용 가능한 AI API: {', '.join(available)}")
         return True
     else:
-        print("\n⚠️ 설정된 API 키가 없습니다.")
-        print("\n📝 API 키 설정 방법:")
+        print("\n⚠️ 설정된 API가 없습니다.")
+        print("\n📝 AI API 설정 방법:")
         print("1. PowerShell에서 환경변수 설정:")
         print('   $env:OPENAI_API_KEY="sk-your-actual-openai-key"')
         print('   $env:ANTHROPIC_API_KEY="sk-ant-your-actual-anthropic-key"')
         print('   $env:GOOGLE_API_KEY="your-actual-google-key"')
-        print("\n2. 또는 sample.env 파일을 편집하여 실제 키 입력")
+        print("\n2. GitHub Copilot 사용:")
+        print("   - VS Code에서 GitHub Copilot 확장 설치")
+        print("   - 또는 GitHub CLI 설치 및 로그인")
+        print("\n3. 또는 sample.env 파일을 편집하여 실제 키 입력")
         return False
 
 def create_test_image():

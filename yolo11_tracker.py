@@ -356,15 +356,14 @@ class YOLO11ObjectTracker:
         
         # 가중치 적용된 거리 (크기가 비슷할수록 가중치 증가)
         weighted_distance = center_distance * (2 - area_ratio)
-        
         return weighted_distance
-    
+
     def track_objects(self, detections):
         """YOLO11 최적화된 고급 객체 추적 로직"""
         if not self.tracked_objects:
             # 첫 번째 프레임: 모든 검출을 새 객체로 등록
             for detection in detections:
-                self.tracked_objects[self.next_id] = {
+                new_obj = {
                     'box': detection['box'],
                     'class': detection['class'],
                     'confidence': detection['confidence'],
@@ -374,6 +373,14 @@ class YOLO11ObjectTracker:
                     'avg_confidence': detection['confidence'],
                     'total_frames': 1,
                 }
+                
+                # AI 분석 데이터가 있으면 추가
+                if 'ai_analysis' in detection:
+                    new_obj['ai_analysis'] = detection['ai_analysis']
+                if 'detailed_name' in detection:
+                    new_obj['detailed_name'] = detection['detailed_name']
+                
+                self.tracked_objects[self.next_id] = new_obj
                 self.next_id += 1
         else:
             matched = set()
@@ -398,7 +405,7 @@ class YOLO11ObjectTracker:
                         if distance < min_distance and distance < max_distance:
                             min_distance = distance
                             best_match = i
-                
+
                 if best_match is not None:
                     matched.add(best_match)
                     
@@ -411,7 +418,8 @@ class YOLO11ObjectTracker:
                     avg_confidence = (tracked_obj['avg_confidence'] * tracked_obj['total_frames'] + 
                                     detections[best_match]['confidence']) / total_frames
                     
-                    new_tracked[obj_id] = {
+                    # 기존 AI 분석 데이터 유지 또는 새 데이터 추가
+                    updated_obj = {
                         'box': detections[best_match]['box'],
                         'class': detections[best_match]['class'],
                         'confidence': detections[best_match]['confidence'],
@@ -421,7 +429,21 @@ class YOLO11ObjectTracker:
                         'avg_confidence': avg_confidence,
                         'total_frames': total_frames,
                     }
-            
+                    
+                    # AI 분석 데이터 전달 (기존 데이터 우선, 새 데이터로 업데이트)
+                    if 'ai_analysis' in tracked_obj:
+                        updated_obj['ai_analysis'] = tracked_obj['ai_analysis']
+                    if 'detailed_name' in tracked_obj:
+                        updated_obj['detailed_name'] = tracked_obj['detailed_name']
+                        
+                    # 새로운 AI 분석 데이터가 있으면 업데이트
+                    if 'ai_analysis' in detections[best_match]:
+                        updated_obj['ai_analysis'] = detections[best_match]['ai_analysis']
+                    if 'detailed_name' in detections[best_match]:
+                        updated_obj['detailed_name'] = detections[best_match]['detailed_name']
+                    
+                    new_tracked[obj_id] = updated_obj
+
             # 새로운 검출 추가 (YOLO11 최적화된 기준)
             for i, detection in enumerate(detections):
                 if i not in matched:
@@ -429,13 +451,14 @@ class YOLO11ObjectTracker:
                     
                     # 모델 크기별 보너스 조정
                     if self.current_model in ['x', 'l']:
-                        bonus = 0.02  # 큰 모델은 매우 관대하게                    elif self.current_model == 'm':
+                        bonus = 0.02  # 큰 모델은 매우 관대하게
+                    elif self.current_model == 'm':
                         bonus = 0.05  # 중간 모델은 조금 관대하게
                     else:
                         bonus = 0.1   # 작은 모델은 더 엄격하게
                     
                     if detection['confidence'] > threshold + bonus:
-                        new_tracked[self.next_id] = {
+                        new_obj = {
                             'box': detection['box'],
                             'class': detection['class'],
                             'confidence': detection['confidence'],
@@ -445,6 +468,14 @@ class YOLO11ObjectTracker:
                             'avg_confidence': detection['confidence'],
                             'total_frames': 1,
                         }
+                        
+                        # AI 분석 데이터가 있으면 새 객체에 추가
+                        if 'ai_analysis' in detection:
+                            new_obj['ai_analysis'] = detection['ai_analysis']
+                        if 'detailed_name' in detection:
+                            new_obj['detailed_name'] = detection['detailed_name']
+                            
+                        new_tracked[self.next_id] = new_obj
                         self.next_id += 1
             
             self.tracked_objects = new_tracked

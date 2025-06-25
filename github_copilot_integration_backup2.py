@@ -67,8 +67,7 @@ class GitHubCopilotIntegration:
     def _analyze_via_prompt_engineering(self, image_data: bytes, object_info: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         """프롬프트 엔지니어링을 통한 실제 AI 분석"""
         try:
-            class_name = object_info.get("class_name", "")            
-            confidence = object_info.get("confidence", 0.0)
+            class_name = object_info.get("class_name", "")            confidence = object_info.get("confidence", 0.0)
             
             # 실제 AI 분석을 위한 프롬프트 생성
             analysis_prompt = self._create_analysis_prompt(class_name, confidence)
@@ -140,7 +139,7 @@ class GitHubCopilotIntegration:
             return None
         except Exception:
             return None
-    def _try_gh_copilot(self, prompt: str, class_name: str) -> Optional[Dict[str, Any]]:
+      def _try_gh_copilot(self, prompt: str, class_name: str) -> Optional[Dict[str, Any]]:
         """GitHub CLI Copilot을 통한 실제 분석 시도"""
         try:
             # GitHub CLI의 gh copilot suggest 명령 사용
@@ -292,8 +291,7 @@ class GitHubCopilotIntegration:
         return None
     
     def _analyze_via_cli_tool(self, image_data: bytes, object_info: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-        """GitHub CLI를 통한 분석"""        
-        return None
+        """GitHub CLI를 통한 분석"""        return None
     
     def _get_brand_suggestion(self, class_name: str) -> str:
         """객체 클래스에 따른 브랜드 제안""" 
@@ -308,8 +306,7 @@ class GitHubCopilotIntegration:
             "person": ["Human", "Individual", "Person", "Visitor", "Customer"]
         }
         
-        options = brand_options.get(class_name, ["Unknown Brand"])        
-        return random.choice(options)
+        options = brand_options.get(class_name, ["Unknown Brand"])        return random.choice(options)
     
     def _get_model_suggestion(self, class_name: str) -> str:
         """객체 클래스에 따른 모델 제안"""
@@ -324,8 +321,7 @@ class GitHubCopilotIntegration:
             "person": ["Adult", "Visitor", "Customer", "Employee", "Student", "Worker", "Pedestrian"]
         }
         
-        options = model_options.get(class_name, [f"Unknown {class_name} Model"])        
-        return random.choice(options)
+        options = model_options.get(class_name, [f"Unknown {class_name} Model"])        return random.choice(options)
     
     def _get_color_suggestion(self, class_name: str) -> str:
         """객체 클래스에 따른 색상 제안"""

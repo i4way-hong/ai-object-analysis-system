@@ -7,12 +7,13 @@ from PIL import Image, ImageDraw, ImageFont
 import os
 
 class ImprovedUIDesign:
-    """개선된 UI 디자인 클래스 - 전문적이고 또렷한 폰트 시스템"""
+    """개선된 UI 디자인 클래스 - GitHub Copilot 상세 분석 결과 표시 강화"""
     
     def __init__(self):
         # 고품질 폰트 시스템 초기화
         self.init_professional_fonts()
-          # 색상 팔레트 (모던하고 시각적으로 매력적인 색상들)
+        
+        # 색상 팔레트 (모던하고 시각적으로 매력적인 색상들)
         self.color_palette = {
             'primary': (52, 152, 219),      # 파란색
             'success': (46, 204, 113),      # 녹색
@@ -26,7 +27,8 @@ class ImprovedUIDesign:
             'pink': (245, 183, 177),        # 분홍색
             'copilot': (100, 255, 255)      # GitHub Copilot 전용 색상
         }
-          # 객체별 색상 매핑
+        
+        # 객체별 색상 매핑
         self.class_colors = {
             'person': self.color_palette['primary'],
             'car': self.color_palette['success'],
@@ -48,15 +50,6 @@ class ImprovedUIDesign:
         """전문적인 폰트 시스템 초기화"""
         self.fonts = {}
         self.use_pil_fonts = True
-        
-        # Windows 시스템 폰트 경로
-        font_paths = [
-            "C:/Windows/Fonts/",
-            "C:/Windows/Fonts/segoeui.ttf",  # Segoe UI
-            "C:/Windows/Fonts/calibri.ttf",   # Calibri
-            "C:/Windows/Fonts/arial.ttf",     # Arial
-            "C:/Windows/Fonts/tahoma.ttf",    # Tahoma
-        ]
         
         # 폰트 크기별 로드
         font_sizes = {
@@ -190,13 +183,14 @@ class ImprovedUIDesign:
         cv2.rectangle(frame, (x1 + radius, y1), (x2 - radius, y2), color, thickness)
         cv2.rectangle(frame, (x1, y1 + radius), (x2, y2 - radius), color, thickness)
         
-        # 모서리 원호        cv2.ellipse(frame, (x1 + radius, y1 + radius), (radius, radius), 180, 0, 90, color, thickness)
+        # 모서리 원호
+        cv2.ellipse(frame, (x1 + radius, y1 + radius), (radius, radius), 180, 0, 90, color, thickness)
         cv2.ellipse(frame, (x2 - radius, y1 + radius), (radius, radius), 270, 0, 90, color, thickness)
         cv2.ellipse(frame, (x1 + radius, y2 - radius), (radius, radius), 90, 0, 90, color, thickness)
         cv2.ellipse(frame, (x2 - radius, y2 - radius), (radius, radius), 0, 0, 90, color, thickness)
     
     def draw_icon(self, frame, icon_type, position, size=20, color=(255, 255, 255)):
-        """작고 선명한 아이콘 그리기"""
+        """작고 선명한 아이콘 그리기 - GitHub Copilot 특별 아이콘 포함"""
         x, y = position
         
         if icon_type == "tracking":
@@ -218,7 +212,7 @@ class ImprovedUIDesign:
                     (center[0] + offset, center[1]), color, 1)
         
         elif icon_type == "ai":
-            # AI 아이콘 (GitHub Copilot용 특별 아이콘)
+            # GitHub Copilot 전용 AI 아이콘 (특별한 디자인)
             center = (x + size//2, y + size//2)
             # 외부 육각형 (AI 느낌)
             points = []
@@ -236,7 +230,7 @@ class ImprovedUIDesign:
             cv2.circle(frame, (center[0], center[1]+4), 1, color, -1)
     
     def draw_modern_info_card(self, frame, obj_id, obj_data):
-        """모던한 정보 카드 그리기 - 전문적이고 간결한 디자인 + AI 분석 정보"""
+        """모던한 정보 카드 그리기 - GitHub Copilot 상세 분석 결과 강화"""
         x1, y1, x2, y2 = map(int, obj_data['box'])
         color = self.get_class_color(obj_data['class'])
         label = obj_data['class']
@@ -247,14 +241,17 @@ class ImprovedUIDesign:
         ai_analysis = obj_data.get('ai_analysis')
         detailed_name = obj_data.get('detailed_name', label)
         
+        # GitHub Copilot 분석 여부 확인
+        has_copilot_analysis = ai_analysis and ai_analysis.get('provider') == 'GitHub Copilot'
+        
         # 펄스 애니메이션 효과 (더 미묘하게)
         self.pulse_factor = (math.sin(time.time() * 2) + 1) / 2 * 0.05
-          # 안정성에 따른 시각적 효과
+        
+        # 안정성에 따른 시각적 효과
         alpha = min(0.15 + (stable_count * 0.01) + self.pulse_factor, 0.4)
         thickness = max(1, min(stable_count // 2, 3))
         
         # GitHub Copilot 분석이 있으면 특별한 테두리
-        has_copilot_analysis = ai_analysis and ai_analysis.get('provider') == 'GitHub Copilot'
         if has_copilot_analysis:
             # 이중 테두리로 GitHub Copilot 강조
             cv2.rectangle(frame, (x1-2, y1-2), (x2+2, y2+2), self.color_palette['copilot'], 1)
@@ -269,34 +266,33 @@ class ImprovedUIDesign:
         cv2.addWeighted(frame, 1-alpha, overlay, alpha, 0, frame)
         
         # GitHub Copilot 분석에 따른 동적 카드 크기 조정
-        has_copilot_analysis = ai_analysis and ai_analysis.get('provider') == 'GitHub Copilot'
-        
-        # GitHub Copilot 분석이 있으면 카드를 더 크게 만들어 상세 정보 표시
         if has_copilot_analysis:
-            card_width = 200  # GitHub Copilot 상세 정보용
-            card_height = 75
+            card_width = 220  # GitHub Copilot 상세 정보용 (더 크게)
+            card_height = 85
         elif ai_analysis:
             card_width = 180  # 일반 AI 분석용
             card_height = 65
         else:
             card_width = 160  # 기본 크기
             card_height = 55
-          # 카드 위치 (객체 위쪽에 표시, 화면 경계 고려)
+        
+        # 카드 위치 (객체 위쪽에 표시, 화면 경계 고려)
         card_x = min(x1, frame.shape[1] - card_width)
         card_y = max(card_height + 5, y1 - 5)
         
-        # GitHub Copilot 분석에 따른 특별한 카드 배경
+        # 더 세련된 카드 배경 (GitHub Copilot은 특별한 색상)
         if has_copilot_analysis:
             self._draw_compact_card_background(frame, card_x, card_y, card_width, card_height, 
                                              self.color_palette['copilot'])
         else:
             self._draw_compact_card_background(frame, card_x, card_y, card_width, card_height, color)
         
-        # 객체 정보 표시 (AI 분석 정보 포함)
+        # 객체 정보 표시 (GitHub Copilot 분석 정보 강화)
         self._draw_compact_card_content_with_ai(frame, card_x, card_y, card_width, card_height, 
                                               obj_id, detailed_name, confidence, stable_count, 
                                               color, ai_analysis)
-          # 더 작은 중심점 표시 (GitHub Copilot은 특별한 색상)
+        
+        # 더 작은 중심점 표시 (GitHub Copilot은 특별한 색상)
         center_x = (x1 + x2) // 2
         center_y = (y1 + y2) // 2
         pulse_radius = int(3 + self.pulse_factor * 2)
@@ -331,7 +327,8 @@ class ImprovedUIDesign:
                     (card_x, card_y - card_height + i), 
                     (card_x + card_width, card_y - card_height + i), 
                     (b, g, r), 1)
-          # 반투명 적용
+        
+        # 반투명 적용
         cv2.addWeighted(frame, 0.25, overlay, 0.75, 0, frame)
         
         # 더 얇은 테두리
@@ -350,7 +347,7 @@ class ImprovedUIDesign:
         
         # GitHub Copilot 분석 시 특별한 아이콘
         if ai_analysis and ai_analysis.get('provider') == 'GitHub Copilot':
-            self.draw_icon(frame, "ai", (icon_x, icon_y), size=12, color=(100, 255, 255))  # 청록색 AI 아이콘
+            self.draw_icon(frame, "ai", (icon_x, icon_y), size=12, color=self.color_palette['copilot'])
         else:
             self.draw_icon(frame, "tracking", (icon_x, icon_y), size=12, color=(255, 255, 255))
         
@@ -388,7 +385,7 @@ class ImprovedUIDesign:
             # GitHub Copilot 특별 표시
             if provider == 'GitHub Copilot':
                 ai_text = f"🤖Copilot {ai_confidence:.1f}"
-                ai_color = (100, 255, 255)  # 청록색으로 강조
+                ai_color = self.color_palette['copilot']  # 전용 색상으로 강조
             else:
                 ai_text = f"🤖{provider[:4]} {ai_confidence:.1f}"
                 ai_color = (255, 255, 100)  # 일반 AI는 노란색
@@ -405,10 +402,16 @@ class ImprovedUIDesign:
             if ai_analysis.get('color') and ai_analysis['color'] != 'Unknown':
                 info_parts.append(ai_analysis['color'][:8])
             
-            # 상태 정보 (GitHub Copilot만)
-            if ai_analysis.get('provider') == 'GitHub Copilot' and ai_analysis.get('condition'):
-                condition = ai_analysis['condition'][:6]  # 상태 정보 줄임
-                info_parts.append(f"[{condition}]")
+            # 상태 정보 (GitHub Copilot만 표시)
+            if ai_analysis.get('provider') == 'GitHub Copilot':
+                if ai_analysis.get('condition'):
+                    condition = ai_analysis['condition'][:6]  # 상태 정보 줄임
+                    info_parts.append(f"[{condition}]")
+                
+                # GitHub Copilot 소스 표시
+                if ai_analysis.get('source'):
+                    source = ai_analysis['source'].replace('github_copilot_', 'GH:')[:10]
+                    info_parts.append(f"({source})")
             
             # 정보 표시
             if info_parts:
@@ -419,20 +422,21 @@ class ImprovedUIDesign:
         # 안정성 정보
         if stable_count >= 3:
             stability_text = f"S:{stable_count}"
-            stability_x = text_x + 80  # 위치 조정
+            stability_x = text_x + 100  # 위치 조정 (카드가 더 커짐)
             self.draw_professional_text(frame, stability_text, (stability_x, ai_info_y), 
                                        'tiny', (100, 255, 100), shadow=True)
         
-        # 더 작은 진행 바
-        bar_x = text_x + 75
+        # GitHub Copilot용 확장된 진행 바
+        bar_x = text_x + 85
         bar_y = text_y + 14
-        bar_width = 40
+        bar_width = 50 if ai_analysis and ai_analysis.get('provider') == 'GitHub Copilot' else 40
         bar_height = 3
         
         # 배경 바
         cv2.rectangle(frame, (bar_x, bar_y), (bar_x + bar_width, bar_y + bar_height), 
                      (60, 60, 60), -1)
-          # 진행 바 (AI 분석 신뢰도와 안정성 결합)
+        
+        # 진행 바 (AI 분석 신뢰도와 안정성 결합)
         if ai_analysis:
             ai_confidence = ai_analysis.get('confidence', 0)
             combined_progress = min(1.0, (stable_count / 10 + ai_confidence) / 2)
@@ -444,8 +448,6 @@ class ImprovedUIDesign:
         # GitHub Copilot은 특별한 색상
         if ai_analysis and ai_analysis.get('provider') == 'GitHub Copilot':
             bar_color = self.color_palette['copilot']
-        elif ai_analysis:
-            bar_color = (100, 255, 255)
         else:
             bar_color = (100, 255, 100) if combined_progress > 0.5 else (255, 255, 100)
             
@@ -453,11 +455,11 @@ class ImprovedUIDesign:
                      bar_color, -1)
     
     def draw_modern_info_panel(self, frame, tracker_info):
-        """모던한 정보 패널 그리기 - 전문적이고 컴팩트한 디자인"""
+        """모던한 정보 패널 그리기 - GitHub Copilot 분석 상태 포함"""
         height, width = frame.shape[:2]
         
         # 더 얇은 패널
-        panel_height = 70
+        panel_height = 80  # GitHub Copilot 정보를 위해 약간 높게
         panel = np.zeros((panel_height, width, 3), dtype=np.uint8)
         
         # 더 세련된 그라데이션 배경
@@ -466,7 +468,8 @@ class ImprovedUIDesign:
         # 더 얇은 제목 바
         title_height = 20
         cv2.rectangle(panel, (0, 0), (width, title_height), self.color_palette['primary'], -1)
-          # 더 작은 메인 제목 (GitHub Copilot 상태 포함)
+        
+        # GitHub Copilot 활성화 상태 표시
         title_text = f"YOLO11 {tracker_info.get('model_name', '').replace('🚀 ', '')} + AI Analysis"
         if tracker_info.get('ai_provider') == 'GitHub Copilot':
             title_text += " 🤖Copilot"
@@ -495,12 +498,12 @@ class ImprovedUIDesign:
             cv2.line(panel, (0, i), (width, i), (b, g, r), 1)
     
     def _draw_compact_performance_cards(self, panel, tracker_info):
-        """컴팩트한 성능 지표 카드들 그리기"""
-        card_width = 90
+        """컴팩트한 성능 지표 카드들 그리기 - GitHub Copilot 정보 추가"""
+        card_width = 85
         card_height = 32
         card_spacing = 6
         start_x = 8
-        start_y = 25
+        start_y = 30
         
         # FPS 카드
         fps_value = tracker_info.get('fps', 0)
@@ -513,7 +516,8 @@ class ImprovedUIDesign:
         self._draw_compact_metric_card(panel, start_x + card_width + card_spacing, start_y, 
                                      card_width, card_height,
                                      "Objects", str(obj_count), self.color_palette['info'])
-          # 정확도 카드
+        
+        # 정확도 카드
         accuracy = tracker_info.get('accuracy', 0)
         acc_color = (100, 255, 100) if accuracy > 80 else (255, 255, 100) if accuracy > 60 else (255, 150, 100)
         self._draw_compact_metric_card(panel, start_x + 2 * (card_width + card_spacing), start_y,
@@ -564,4 +568,3 @@ class ImprovedUIDesign:
         
         # 값 (더 선명하게)
         self.draw_professional_text(panel, value, (x + 3, y + 14), 'small', (255, 255, 255), shadow=True)
-

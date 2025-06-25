@@ -12,7 +12,6 @@ def print_banner():
     """시스템 배너 출력"""
     print("🚀" + "="*60)
     print("🎯 AI 객체 상세 분석 시스템")
-    print("   폰트 품질 개선 + AI API 상세 분석")
     print("="*60)
 
 def check_requirements():
@@ -86,9 +85,7 @@ def run_webcam_analysis():
 def run_demo():
     """시스템 데모 실행"""
     print("\n🎨 시스템 데모를 실행합니다...")
-    print("   - 개선된 폰트 시스템")
     print("   - AI 상세 분석 정보")
-    print("   - 전문가급 UI 디자인")
     print("")
     
     try:
@@ -126,10 +123,9 @@ def show_system_info():
     """시스템 정보 표시"""
     print("\n📊 시스템 정보:")
     print("="*50)
-    print("🎨 폰트 시스템: Calibri TrueType (고품질)")
+    print("🎨 폰트 시스템: Calibri TrueType")
     print("🤖 AI 분석: OpenAI, Anthropic, Google 지원")
     print("🚀 YOLO 모델: YOLO11 (Nano~Extra Large)")
-    print("🎯 UI 디자인: 전문가급 컴팩트 디자인")
     print("")
     print("📁 핵심 파일:")
     print("   - ui_design_improved.py (UI 시스템)")
@@ -175,7 +171,5 @@ def main():
         except Exception as e:
             print(f"❌ 오류 발생: {e}")
     
-    print("🚀 이용해 주셔서 감사합니다!")
-
 if __name__ == "__main__":
     main()

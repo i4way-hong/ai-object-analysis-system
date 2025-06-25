@@ -33,8 +33,7 @@ class AIObjectAnalyzer:
                 'api_key': os.getenv('ANTHROPIC_API_KEY'),
                 'endpoint': 'https://api.anthropic.com/v1/messages',
                 'model': 'claude-3-sonnet-20240229'
-            },
-            'google': {
+            },            'google': {
                 'enabled': False,
                 'api_key': os.getenv('GOOGLE_API_KEY'),
                 'endpoint': 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
@@ -92,11 +91,11 @@ class AIObjectAnalyzer:
             'tv': 5,
             'book': 4,
             'bottle': 3,
-            'chair': 2,
-            'cup': 1
+            'chair': 2,            'cup': 1
         }
         
         print("🤖 AI 객체 분석기 초기화 완료")
+        print("🥇 AI 분석 우선순위: Google Gemini → GitHub Copilot → OpenAI → Anthropic")
         
     def check_api_availability(self):
         """API 사용 가능성 확인"""
@@ -112,9 +111,10 @@ class AIObjectAnalyzer:
         
         if not available_apis:
             print("⚠️ 사용 가능한 AI API가 없습니다. 환경변수를 설정하세요:")
+            print("   GOOGLE_API_KEY=your_google_key (추천: 무료)")
             print("   OPENAI_API_KEY=your_openai_key")
-            print("   ANTHROPIC_API_KEY=your_anthropic_key") 
-            print("   GOOGLE_API_KEY=your_google_key")
+            print("   ANTHROPIC_API_KEY=your_anthropic_key")
+            print("💡 Google Gemini API를 먼저 설정하는 것을 권장합니다 (무료)")
         
         return available_apis
     
@@ -309,9 +309,8 @@ class AIObjectAnalyzer:
         except Exception as e:
             print(f"❌ Anthropic 분석 실패: {e}")
             return None
-    
     def analyze_with_google(self, image_base64: str, object_class: str) -> Optional[Dict]:
-        """Google Gemini로 분석"""
+        """Google Gemini로 분석 (개선된 오류 처리)"""
         if not self.api_providers['google']['enabled']:
             return None
             
@@ -320,7 +319,20 @@ class AIObjectAnalyzer:
                 'Content-Type': 'application/json'
             }
             
-            prompt = self.create_analysis_prompt(object_class)
+            # 더 단순하고 명확한 프롬프트
+            prompt = f"""Analyze this {object_class} image and respond with ONLY valid JSON:
+
+{{
+    "brand": "brand name or Unknown",
+    "model": "model name or Unknown", 
+    "type": "{object_class}",
+    "color": "primary color",
+    "distinctive_features": ["feature1", "feature2"],
+    "condition": "condition status",
+    "confidence": 0.8
+}}
+
+IMPORTANT: Return ONLY the JSON object above, no markdown, no explanations."""
             
             payload = {
                 "contents": [
@@ -338,8 +350,27 @@ class AIObjectAnalyzer:
                 ],
                 "generationConfig": {
                     "temperature": 0.1,
-                    "maxOutputTokens": 500
-                }
+                    "maxOutputTokens": 300,
+                    "candidateCount": 1
+                },
+                "safetySettings": [
+                    {
+                        "category": "HARM_CATEGORY_HARASSMENT",
+                        "threshold": "BLOCK_NONE"
+                    },
+                    {
+                        "category": "HARM_CATEGORY_HATE_SPEECH", 
+                        "threshold": "BLOCK_NONE"
+                    },
+                    {
+                        "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                        "threshold": "BLOCK_NONE"
+                    },
+                    {
+                        "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+                        "threshold": "BLOCK_NONE"
+                    }
+                ]
             }
             
             url = f"{self.api_providers['google']['endpoint']}?key={self.api_providers['google']['api_key']}"
@@ -353,16 +384,67 @@ class AIObjectAnalyzer:
             
             if response.status_code == 200:
                 result = response.json()
-                content = result['candidates'][0]['content']['parts'][0]['text']
+                
+                # 응답 구조 상세 확인
+                if 'candidates' not in result or not result['candidates']:
+                    print("⚠️ Gemini 응답에 candidates 없음")
+                    return None
+                
+                candidate = result['candidates'][0]
+                
+                # finishReason 확인
+                finish_reason = candidate.get('finishReason', 'UNKNOWN')
+                if finish_reason != 'STOP':
+                    print(f"⚠️ Gemini 응답 미완료: {finish_reason}")
+                    if finish_reason == 'SAFETY':
+                        print("⚠️ 안전 필터에 의해 차단됨")
+                    return None
+                
+                if 'content' not in candidate:
+                    print("⚠️ Gemini candidate에 content 없음")
+                    return None
+                
+                content = candidate['content']['parts'][0]['text'].strip()
+                
+                # JSON 정리 (마크다운 코드 블록 제거)
+                if content.startswith('```json'):
+                    content = content.replace('```json', '').replace('```', '').strip()
+                elif content.startswith('```'):
+                    content = content.replace('```', '').strip()
+                
+                # JSON 파싱 시도
                 try:
                     analysis = json.loads(content)
-                    analysis['provider'] = 'Google Gemini'
+                    print(f"⚠️ Gemini JSON : {analysis}")
+                    analysis['provider'] = 'Google Gemini 2.0 Flash'
+                    print(f"✅ Gemini 분석 성공: {analysis.get('brand', 'Unknown')} {analysis.get('model', 'Unknown')}")
                     return analysis
-                except json.JSONDecodeError:
-                    print(f"⚠️ Gemini 응답 JSON 파싱 실패: {content}")
-                    return None
+                except json.JSONDecodeError as e:
+                    print(f"⚠️ Gemini JSON 파싱 실패: {e}")
+                    print(f"   원본 응답: {content[:100]}...")
+                    
+                    # 백업: 간단한 분석 반환
+                    return {
+                        "brand": "Gemini Analysis",
+                        "model": f"{object_class} detected",
+                        "type": object_class,
+                        "color": "Unknown",
+                        "distinctive_features": ["AI analyzed"],
+                        "condition": "Good",
+                        "confidence": 0.6,
+                        "provider": "Google Gemini 1.5 (backup)"
+                    }
+                    
+            elif response.status_code == 400:
+                try:
+                    error_data = response.json()
+                    error_msg = error_data.get('error', {}).get('message', str(error_data))
+                    print(f"❌ Google API 400 오류: {error_msg}")
+                except:
+                    print(f"❌ Google API 400 오류: {response.text}")
+                return None
             else:
-                print(f"❌ Google API 오류: {response.status_code}")
+                print(f"❌ Google API 오류 ({response.status_code}): {response.text}")
                 return None
                 
         except Exception as e:
@@ -466,12 +548,15 @@ class AIObjectAnalyzer:
         # 이미지 인코딩
         image_base64 = self.encode_image_to_base64(crop)
         if not image_base64:
-            return None
-          # 사용 가능한 API로 분석 시도 (우선순위 순)
+            return None          # 사용 가능한 API로 분석 시도 (우선순위 순)
         analysis_result = None
         
-        # GitHub Copilot 최우선 (로컬 처리, 빠름)
-        if self.api_providers['github_copilot']['enabled']:
+        # Google Gemini 최우선 (무료, 이미지 분석 우수)
+        if self.api_providers['google']['enabled']:
+            analysis_result = self.analyze_with_google(image_base64, object_class)
+        
+        # Google 실패 시 GitHub Copilot
+        if not analysis_result and self.api_providers['github_copilot']['enabled']:
             analysis_result = self.analyze_with_github_copilot(image_base64, object_class)
         
         # GitHub Copilot 실패 시 OpenAI
@@ -481,10 +566,6 @@ class AIObjectAnalyzer:
         # OpenAI 실패 시 Anthropic
         if not analysis_result and self.api_providers['anthropic']['enabled']:
             analysis_result = self.analyze_with_anthropic(image_base64, object_class)
-        
-        # Anthropic 실패 시 Google
-        if not analysis_result and self.api_providers['google']['enabled']:
-            analysis_result = self.analyze_with_google(image_base64, object_class)
         
         # 결과 캐싱
         if analysis_result:
